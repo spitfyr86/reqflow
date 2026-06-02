@@ -14,6 +14,75 @@ Base URL: `http://localhost:5000`
 | `POST` | `/api/requests/{id}/approve` | `200` | Approve a pending request |
 | `POST` | `/api/requests/{id}/reject` | `200` | Reject a pending request |
 
+## Complete API Workflow
+
+Use `POST /api/auth/demo-login` to obtain a bearer token. The requester and reviewer identities are derived from the token, not request bodies.
+
+### 1. Login As A Requester
+
+```json
+{
+  "userId": "10000000-0000-0000-0000-000000000001"
+}
+```
+
+The response contains `accessToken`. Use that token to create a request.
+
+### 2. Create A Pending Request
+
+```json
+{
+  "title": "New laptop",
+  "description": "Replacement laptop for a developer."
+}
+```
+
+The response is `201 Created`. Save the returned request `id`.
+
+### 3. Login As An Approver
+
+```json
+{
+  "userId": "10000000-0000-0000-0000-000000000003"
+}
+```
+
+Use the approver token for one of the following terminal actions.
+
+### 4a. Approve
+
+Call:
+
+```text
+POST /api/requests/{id}/approve
+```
+
+Approval has no request body.
+
+### 4b. Reject
+
+Call:
+
+```text
+POST /api/requests/{id}/reject
+```
+
+```json
+{
+  "reason": "Budget is not available."
+}
+```
+
+### 5. Inspect History
+
+Call:
+
+```text
+GET /api/requests/{id}
+```
+
+The response includes status, reviewer, rejection reason when applicable, and the ordered `history` collection.
+
 ## Create
 
 Protected endpoints require `Authorization: Bearer {accessToken}`. The API derives requester and reviewer identities from the JWT.

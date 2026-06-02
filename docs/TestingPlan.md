@@ -37,11 +37,17 @@ Add Vitest and React Testing Library coverage for form validation, loading/error
 
 1. Apply both SQL scripts.
 2. Start API and UI.
-3. Confirm list displays seeded rows.
-4. Sign in as a requester, create a request, and confirm pending history.
-5. Sign in as an approver, approve the request, and confirm buttons disappear.
-6. Reject another pending request and confirm blank reason is blocked.
-7. Use Swagger to attempt a second transition and confirm `409`.
+3. Confirm the login page lists active demo users.
+4. Sign in as Alex Requester and confirm the list displays seeded rows.
+5. Create a request and confirm pending history records `alex@example.com`.
+6. Sign out, sign in as Lee Approver, approve the request, and confirm buttons disappear.
+7. Create a second request as Alex, then reject it as Lee with a reason.
+8. Confirm requester accounts cannot see review actions.
+9. Confirm an approver cannot review a request they created.
+10. Confirm blank rejection reason is blocked.
+11. Use Swagger to attempt a second transition and confirm `409`.
+
+See [LocalDevelopment.md](LocalDevelopment.md) for a step-by-step UI walkthrough.
 
 ## Test Data
 

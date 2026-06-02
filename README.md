@@ -29,21 +29,26 @@ ui/         Vite React application
 
 ## Run Locally
 
-Prerequisites: .NET 8 SDK or newer, Node.js, npm, and SQL Server LocalDB or a configurable SQL Server instance.
+Prerequisites: .NET 8 SDK or newer, Node.js, npm, SQL Server LocalDB, and `sqlcmd`.
 
-1. Run `sql/001_create_reqflow_schema.sql`, then optionally `sql/002_seed_sample_data.sql`.
-2. Override `ConnectionStrings__ReqFlow` if LocalDB is not appropriate.
-3. Start the API:
+From the repository root, create the local database and load the demo users and requests:
+
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -E -b -i sql\001_create_reqflow_schema.sql
+sqlcmd -S "(localdb)\MSSQLLocalDB" -E -b -i sql\002_seed_sample_data.sql
+```
+
+Start the API in one terminal:
 
 ```powershell
 dotnet restore
 dotnet build ReqFlow.slnx
-dotnet run --project api/ReqFlow.Api
+dotnet run --project api\ReqFlow.Api --launch-profile http
 ```
 
 Swagger is available at `http://localhost:5000/swagger`.
 
-4. Start the UI:
+Start the UI in a second terminal:
 
 ```powershell
 cd ui
@@ -51,7 +56,9 @@ npm install
 npm run dev
 ```
 
-The UI runs at `http://localhost:5173`. Copy `.env.example` to `.env` only when the API base URL needs to change. Sign in as a seeded requester, approver, or administrator to exercise each workflow path.
+Open `http://localhost:5173`. Sign in as a seeded requester, approver, or administrator to exercise each workflow path.
+
+See [docs/LocalDevelopment.md](docs/LocalDevelopment.md) for a complete request-approval walkthrough, demo identities, database reset instructions, alternate SQL Server configuration, validation commands, and troubleshooting.
 
 ## Tests
 

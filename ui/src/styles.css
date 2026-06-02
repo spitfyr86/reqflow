@@ -1,0 +1,67 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: light-dark(#f4f7fb, #101828);
+}
+
+.app-header {
+  background: light-dark(rgba(255, 255, 255, 0.92), rgba(16, 24, 40, 0.92));
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid light-dark(#dbe4f0, #24344d);
+}
+
+.brand-mark {
+  background: linear-gradient(135deg, #064f97, #327fd3);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(6, 79, 151, 0.2);
+  color: white;
+  display: grid;
+  font-size: 13px;
+  font-weight: 800;
+  height: 38px;
+  letter-spacing: 0.05em;
+  place-items: center;
+  width: 38px;
+}
+
+.workflow-banner {
+  background:
+    radial-gradient(circle at 85% 15%, rgba(121, 188, 255, 0.45), transparent 22%),
+    linear-gradient(120deg, #063f79 0%, #07589f 55%, #1670bd 100%);
+  box-shadow: 0 16px 34px rgba(6, 79, 151, 0.18);
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.workflow-banner::after {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  content: '';
+  height: 210px;
+  position: absolute;
+  right: -60px;
+  top: -80px;
+  width: 210px;
+}
+
+.summary-card {
+  border-color: light-dark(#dbe4f0, #24344d);
+  box-shadow: 0 8px 24px light-dark(rgba(23, 48, 86, 0.06), rgba(0, 0, 0, 0.1));
+}
+
+.content-card {
+  border-color: light-dark(#dbe4f0, #24344d);
+  box-shadow: 0 12px 30px light-dark(rgba(23, 48, 86, 0.07), rgba(0, 0, 0, 0.12));
+}
+
+.login-shell {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(75, 149, 218, 0.28), transparent 24rem),
+    linear-gradient(145deg, light-dark(#eaf2fc, #101828), light-dark(#f8fbff, #17233a));
+  min-height: 100vh;
+}

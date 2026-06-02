@@ -1,4 +1,4 @@
-import { Alert, Button, Divider, Group, List, Paper, Stack, Text, Title } from '@mantine/core'
+import { Alert, Button, Divider, Grid, Group, List, Paper, Stack, Text, Title } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { requestApprovalApi } from '../api/requestApprovalApi'
@@ -63,16 +63,29 @@ export function RequestDetailsPage() {
         <RequestStatusBadge status={request.status} />
       </Group>
       {error && <Alert color="red">{error}</Alert>}
-      <Paper withBorder p="lg">
-        <Stack gap="xs">
-          <Text><strong>Requested by:</strong> {request.requestedBy}</Text>
-          <Text><strong>Created:</strong> {new Date(request.createdAt).toLocaleString()}</Text>
-          <Text><strong>Description:</strong> {request.description}</Text>
-          {request.rejectionReason && <Text c="red"><strong>Rejection reason:</strong> {request.rejectionReason}</Text>}
-        </Stack>
-      </Paper>
+      <Grid>
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Paper className="content-card" withBorder p="xl" h="100%">
+            <Stack gap="xs">
+              <Text c="dimmed" size="sm" fw={700}>REQUEST DESCRIPTION</Text>
+              <Text>{request.description}</Text>
+              {request.rejectionReason && <Alert color="red" mt="md" title="Rejection reason">{request.rejectionReason}</Alert>}
+            </Stack>
+          </Paper>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Paper className="content-card" withBorder p="xl" h="100%">
+            <Stack gap="xs">
+              <Text c="dimmed" size="sm" fw={700}>REQUEST DETAILS</Text>
+              <Text size="sm"><strong>Requested by</strong><br />{request.requestedBy}</Text>
+              <Text size="sm"><strong>Created</strong><br />{new Date(request.createdAt).toLocaleString()}</Text>
+              {request.approvedRejectedBy && <Text size="sm"><strong>Reviewed by</strong><br />{request.approvedRejectedBy}</Text>}
+            </Stack>
+          </Paper>
+        </Grid.Col>
+      </Grid>
       {request.status === 'Pending' && user && ['Approver', 'Admin'].includes(user.role) && user.id !== request.requestedByUserId && (
-        <Paper withBorder p="lg">
+        <Paper className="content-card" withBorder p="lg">
           <Stack>
             <Title order={4}>Review action</Title>
             <Group>
@@ -82,7 +95,7 @@ export function RequestDetailsPage() {
           </Stack>
         </Paper>
       )}
-      <Paper withBorder p="lg">
+      <Paper className="content-card" withBorder p="lg">
         <Title order={4}>Status history</Title>
         <Divider my="sm" />
         <List spacing="sm">

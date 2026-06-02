@@ -27,14 +27,23 @@ public sealed class RequestService(IRequestRepository repository, IUserRepositor
 
     public async Task<IReadOnlyList<RequestListItemDto>> ListAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
     {
-        await GetActiveUserAsync(actor, cancellationToken);
-        return (await repository.ListAsync(cancellationToken)).Select(MapListItem).ToList();
+        var user = await GetActiveUserAsync(actor, cancellationToken);
+        return (await GetVisibleRequestsAsync(user, cancellationToken)).Select(MapListItem).ToList();
+    }
+
+    public async Task<PendingRequestCountDto> GetPendingCountAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
+    {
+        var user = await GetActiveUserAsync(actor, cancellationToken);
+        var requests = await GetVisibleRequestsAsync(user, cancellationToken);
+        return new PendingRequestCountDto(requests.Count(request => request.Status == RequestStatus.Pending));
     }
 
     public async Task<RequestDetailDto> GetAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken)
     {
-        await GetActiveUserAsync(actor, cancellationToken);
-        return MapDetail(await GetEntityAsync(id, cancellationToken));
+        var user = await GetActiveUserAsync(actor, cancellationToken);
+        var request = await GetEntityAsync(id, cancellationToken);
+        EnsureCanView(request, user);
+        return MapDetail(request);
     }
 
     public async Task<RequestDetailDto> ApproveAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken)
@@ -93,6 +102,22 @@ public sealed class RequestService(IRequestRepository repository, IUserRepositor
     private async Task<Request> GetEntityAsync(Guid id, CancellationToken cancellationToken) =>
         await repository.GetAsync(id, cancellationToken)
         ?? throw new NotFoundException($"Request '{id}' was not found.");
+
+    private async Task<IReadOnlyList<Request>> GetVisibleRequestsAsync(User user, CancellationToken cancellationToken)
+    {
+        var requests = await repository.ListAsync(cancellationToken);
+        return user.Role == UserRole.Requester
+            ? requests.Where(request => request.RequestedByUserId == user.Id).ToList()
+            : requests;
+    }
+
+    private static void EnsureCanView(Request request, User user)
+    {
+        if (user.Role == UserRole.Requester && request.RequestedByUserId != user.Id)
+        {
+            throw new ForbiddenException("Requesters can only view their own requests.");
+        }
+    }
 
     private async Task<User> GetActiveUserAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
     {

@@ -28,4 +28,4 @@
 
 ## Smoke Checks
 
-Confirm API health and Swagger in non-production environments, create a request, list it, inspect history, approve one request, reject another, and confirm invalid repeated transitions return `409`.
+Confirm `GET /health` and Swagger in non-production environments, create a request, verify requester-scoped visibility, inspect history, approve one request, reject another, and confirm invalid repeated transitions return `409`.

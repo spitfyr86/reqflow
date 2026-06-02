@@ -24,6 +24,7 @@ Questions to confirm with a product owner:
 ## Functional Requirements
 
 - Create a pending request with title, description, and requester.
+- Show requesters only their own requests while approvers and administrators see the complete queue.
 - List requests and show request details with status history.
 - Approve or reject only pending requests.
 - Require actor on transitions and reason on rejection.
@@ -46,3 +47,5 @@ Questions to confirm with a product owner:
 4. A second transition returns `409`.
 5. An unknown request returns `404`.
 6. List, details, transitions, and history are usable from the React UI.
+7. Requester reads are scoped to requests they created.
+8. Approvers and administrators can view the complete request queue.

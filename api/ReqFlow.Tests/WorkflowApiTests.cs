@@ -13,6 +13,7 @@ namespace ReqFlow.Tests;
 public sealed class WorkflowApiTests
 {
     private static readonly Guid RequesterId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    private static readonly Guid OtherRequesterId = Guid.Parse("10000000-0000-0000-0000-000000000002");
     private static readonly Guid ApproverId = Guid.Parse("10000000-0000-0000-0000-000000000003");
     private static readonly Guid InactiveUserId = Guid.Parse("10000000-0000-0000-0000-000000000005");
 
@@ -25,6 +26,17 @@ public sealed class WorkflowApiTests
         var response = await client.GetAsync("/api/requests");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task HealthEndpointIsAvailableWithoutAuthentication()
+    {
+        using var factory = new ReqFlowApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -52,6 +64,34 @@ public sealed class WorkflowApiTests
         Assert.Equal("alex@example.com", detail.RequestedBy);
         Assert.Equal(RequesterId, detail.RequestedByUserId);
         Assert.Equal("Pending", detail.Status);
+    }
+
+    [Fact]
+    public async Task RequesterOnlySeesOwnRequests()
+    {
+        using var factory = new ReqFlowApiFactory();
+        using var client = await CreateAuthenticatedClientAsync(factory, RequesterId);
+
+        var requests = await client.GetFromJsonAsync<List<RequestListItemDto>>("/api/requests");
+        var hiddenResponse = await client.GetAsync($"/api/requests/{factory.OtherRequesterRequestId}");
+
+        Assert.NotNull(requests);
+        Assert.All(requests, request => Assert.Equal("alex@example.com", request.RequestedBy));
+        Assert.Equal(HttpStatusCode.Forbidden, hiddenResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task ApproverSeesAllRequestsAndPendingCount()
+    {
+        using var factory = new ReqFlowApiFactory();
+        using var client = await CreateAuthenticatedClientAsync(factory, ApproverId);
+
+        var requests = await client.GetFromJsonAsync<List<RequestListItemDto>>("/api/requests");
+        var pending = await client.GetFromJsonAsync<PendingRequestCountDto>("/api/requests/pending-count");
+
+        Assert.NotNull(requests);
+        Assert.Equal(2, requests.Count);
+        Assert.Equal(2, pending!.Count);
     }
 
     [Fact]
@@ -148,6 +188,7 @@ public sealed class WorkflowApiTests
 public sealed class ReqFlowApiFactory : WebApplicationFactory<Program>
 {
     public Guid PendingRequestId => Services.GetRequiredService<TestStore>().PendingRequestId;
+    public Guid OtherRequesterRequestId => Services.GetRequiredService<TestStore>().OtherRequesterRequestId;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -165,11 +206,13 @@ public sealed class ReqFlowApiFactory : WebApplicationFactory<Program>
 public sealed class TestStore : IRequestRepository, IUserRepository
 {
     private static readonly Guid RequesterId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    private static readonly Guid OtherRequesterId = Guid.Parse("10000000-0000-0000-0000-000000000002");
     private static readonly Guid ApproverId = Guid.Parse("10000000-0000-0000-0000-000000000003");
     private static readonly Guid InactiveUserId = Guid.Parse("10000000-0000-0000-0000-000000000005");
     private readonly List<User> _users =
     [
         new(RequesterId, "alex@example.com", "Alex Requester", UserRole.Requester),
+        new(OtherRequesterId, "sam@example.com", "Sam Requester", UserRole.Requester),
         new(ApproverId, "lead@example.com", "Lee Approver", UserRole.Approver),
         new(InactiveUserId, "inactive@example.com", "Inactive User", UserRole.Approver, false)
     ];
@@ -178,11 +221,14 @@ public sealed class TestStore : IRequestRepository, IUserRepository
     public TestStore()
     {
         var request = new Request("Laptop", "Replacement laptop", RequesterId, "alex@example.com");
+        var otherRequesterRequest = new Request("Training", "Course registration", OtherRequesterId, "sam@example.com");
         PendingRequestId = request.Id;
-        _requests = [request];
+        OtherRequesterRequestId = otherRequesterRequest.Id;
+        _requests = [request, otherRequesterRequest];
     }
 
     public Guid PendingRequestId { get; }
+    public Guid OtherRequesterRequestId { get; }
 
     public Task AddAsync(Request request, CancellationToken cancellationToken)
     {

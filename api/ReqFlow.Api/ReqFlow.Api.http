@@ -2,6 +2,10 @@
 @RequesterUserId = 10000000-0000-0000-0000-000000000001
 @AccessToken = paste-token-from-demo-login
 
+GET {{ReqFlow_Api_HostAddress}}/health
+
+###
+
 POST {{ReqFlow_Api_HostAddress}}/api/auth/demo-login
 Content-Type: application/json
 
@@ -12,6 +16,12 @@ Content-Type: application/json
 ###
 
 GET {{ReqFlow_Api_HostAddress}}/api/requests
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
+
+GET {{ReqFlow_Api_HostAddress}}/api/requests/pending-count
 Accept: application/json
 Authorization: Bearer {{AccessToken}}
 

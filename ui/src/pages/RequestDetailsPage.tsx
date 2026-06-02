@@ -30,6 +30,7 @@ export function RequestDetailsPage() {
     setError(undefined)
     try {
       setRequest(await requestApprovalApi.approve(id))
+      window.dispatchEvent(new Event('reqflow:requests-changed'))
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to approve request.')
     } finally {
@@ -42,6 +43,7 @@ export function RequestDetailsPage() {
     setError(undefined)
     try {
       setRequest(await requestApprovalApi.reject(id, reason))
+      window.dispatchEvent(new Event('reqflow:requests-changed'))
       setRejectOpened(false)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to reject request.')
@@ -52,6 +54,10 @@ export function RequestDetailsPage() {
 
   if (loading) return <LoadingView />
   if (!request) return <ErrorAlert message={error ?? 'Request was not found.'} />
+  const canReview = user && ['Approver', 'Admin'].includes(user.role) && user.id !== request.requestedByUserId
+  const reviewMessage = user?.id === request.requestedByUserId
+    ? 'You created this request. To preserve separation of duties, another approver or administrator must review it.'
+    : 'Your current role can view this request but cannot approve or reject it.'
 
   return (
     <Stack>
@@ -84,7 +90,10 @@ export function RequestDetailsPage() {
           </Paper>
         </Grid.Col>
       </Grid>
-      {request.status === 'Pending' && user && ['Approver', 'Admin'].includes(user.role) && user.id !== request.requestedByUserId && (
+      {request.status === 'Pending' && !canReview && (
+        <Alert color="blue" title="Review action unavailable">{reviewMessage}</Alert>
+      )}
+      {request.status === 'Pending' && canReview && (
         <Paper className="content-card" withBorder p="lg">
           <Stack>
             <Title order={4}>Review action</Title>

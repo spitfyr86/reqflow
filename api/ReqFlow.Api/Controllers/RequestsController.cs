@@ -21,6 +21,10 @@ public sealed class RequestsController(IRequestService requestService) : Control
     public async Task<ActionResult<IReadOnlyList<RequestListItemDto>>> List(CancellationToken cancellationToken) =>
         Ok(await requestService.ListAsync(User.GetAuthenticatedUser(), cancellationToken));
 
+    [HttpGet("pending-count")]
+    public async Task<ActionResult<PendingRequestCountDto>> PendingCount(CancellationToken cancellationToken) =>
+        Ok(await requestService.GetPendingCountAsync(User.GetAuthenticatedUser(), cancellationToken));
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<RequestDetailDto>> Get(Guid id, CancellationToken cancellationToken) =>
         Ok(await requestService.GetAsync(id, User.GetAuthenticatedUser(), cancellationToken));

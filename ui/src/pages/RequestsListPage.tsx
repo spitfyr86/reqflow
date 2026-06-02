@@ -1,16 +1,19 @@
-import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
+import { Button, Grid, Group, Paper, SegmentedControl, Stack, Text, Title } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { requestApprovalApi } from '../api/requestApprovalApi'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { LoadingView } from '../components/LoadingView'
 import { RequestTable } from '../components/RequestTable'
-import type { RequestListItem } from '../types/request'
+import type { RequestListItem, RequestStatus } from '../types/request'
+
+type StatusFilter = 'All' | RequestStatus
 
 export function RequestsListPage() {
   const [requests, setRequests] = useState<RequestListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>()
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('All')
 
   useEffect(() => {
     requestApprovalApi.list()
@@ -19,6 +22,9 @@ export function RequestsListPage() {
       .finally(() => setLoading(false))
   }, [])
   const countByStatus = (status: RequestListItem['status']) => requests.filter((request) => request.status === status).length
+  const filteredRequests = statusFilter === 'All'
+    ? requests
+    : requests.filter((request) => request.status === statusFilter)
 
   return (
     <Stack>
@@ -49,10 +55,20 @@ export function RequestsListPage() {
           </Paper>
         </Grid.Col>
       </Grid>
+      <Group justify="space-between">
+        <Text c="dimmed" size="sm">Filter by status</Text>
+        <SegmentedControl
+          data={['All', 'Pending', 'Approved', 'Rejected']}
+          onChange={(value) => setStatusFilter(value as StatusFilter)}
+          value={statusFilter}
+        />
+      </Group>
       {error && <ErrorAlert message={error} />}
       {loading ? <LoadingView /> : (
         <Paper className="content-card" withBorder p="md">
-          {requests.length ? <RequestTable requests={requests} /> : <Text c="dimmed">No requests yet.</Text>}
+          {filteredRequests.length
+            ? <RequestTable requests={filteredRequests} />
+            : <Text c="dimmed">{requests.length ? `No ${statusFilter.toLowerCase()} requests match this filter.` : 'No requests yet.'}</Text>}
         </Paper>
       )}
     </Stack>

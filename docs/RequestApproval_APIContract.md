@@ -8,8 +8,10 @@ Base URL: `http://localhost:5000`
 | --- | --- | --- | --- |
 | `GET` | `/api/auth/demo-users` | `200` | List active local demo identities |
 | `POST` | `/api/auth/demo-login` | `200` | Issue a local demo JWT |
+| `GET` | `/health` | `200` | Lightweight API health check |
 | `POST` | `/api/requests` | `201` | Create a request |
 | `GET` | `/api/requests` | `200` | List requests |
+| `GET` | `/api/requests/pending-count` | `200` | Count visible pending requests |
 | `GET` | `/api/requests/{id}` | `200` | Get request details and history |
 | `POST` | `/api/requests/{id}/approve` | `200` | Approve a pending request |
 | `POST` | `/api/requests/{id}/reject` | `200` | Reject a pending request |
@@ -82,6 +84,12 @@ GET /api/requests/{id}
 ```
 
 The response includes status, reviewer, rejection reason when applicable, and the ordered `history` collection.
+
+## Visibility Rules
+
+- Requesters only receive requests they created from list and detail endpoints.
+- Approvers and administrators can view all requests.
+- The pending-count endpoint follows the same visibility rule. The UI uses it as a queue indicator for approvers and administrators.
 
 ## Create
 

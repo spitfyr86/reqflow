@@ -19,6 +19,29 @@ sqlcmd -?
 SqlLocalDB info
 ```
 
+## Quick Start Script
+
+From the repository root:
+
+```powershell
+.\start-reqflow.ps1
+```
+
+The script validates `dotnet` and `npm`, installs UI packages when `ui\node_modules` is missing, and opens two visible PowerShell windows:
+
+- **ReqFlow API**: runs the API at `http://localhost:5000`
+- **ReqFlow UI**: runs the UI at `http://localhost:5173`
+
+To stop the app, press `Ctrl+C` in both windows.
+
+Reset and seed LocalDB before starting when you want a clean demo:
+
+```powershell
+.\start-reqflow.ps1 -ResetDatabase
+```
+
+The manual startup steps remain below for reviewers who prefer to run each command explicitly.
+
 ## 1. Create And Seed The Database
 
 Run these commands from the repository root:
@@ -112,8 +135,11 @@ Use this walkthrough after the API and UI are running.
 
 ### Verify Guardrails
 
-- Sign in as a requester and confirm pending requests do not show approve or reject actions.
+- Sign in as a requester and confirm only that requester's own requests are listed.
+- Confirm pending requester details explain why approve and reject actions are unavailable.
 - Sign in as an approver, create a request, and confirm the approver cannot review their own request.
+- Confirm approver and administrator avatars show the pending-approval count.
+- Filter the request list by **All**, **Pending**, **Approved**, and **Rejected**.
 - Try to reject without a reason and confirm the UI blocks submission.
 - Try to transition an approved or rejected request through Swagger and confirm the API returns `409 Conflict`.
 
@@ -130,6 +156,12 @@ Build the frontend:
 ```powershell
 cd ui
 npm run build
+```
+
+Confirm the API health endpoint:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing http://localhost:5000/health
 ```
 
 ## Reset Local Data

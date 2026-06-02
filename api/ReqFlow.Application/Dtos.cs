@@ -6,6 +6,7 @@ public sealed record RejectRequestDto(string Reason);
 public sealed record CurrentUserDto(Guid Id, string Email, string DisplayName, string Role);
 public sealed record DemoLoginDto(Guid UserId);
 public sealed record LoginResponseDto(string AccessToken, CurrentUserDto User);
+public sealed record PendingRequestCountDto(int Count);
 
 public sealed record RequestListItemDto(Guid Id, string Title, string RequestedBy, string Status, DateTime CreatedAt);
 

@@ -1,4 +1,4 @@
-import type { CreateRequest, CurrentUser, LoginResponse, RequestDetail, RequestListItem } from '../types/request'
+import type { CreateRequest, CurrentUser, LoginResponse, PendingRequestCount, RequestDetail, RequestListItem } from '../types/request'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
 
@@ -36,6 +36,7 @@ export const requestApprovalApi = {
   login: (userId: string) =>
     request<LoginResponse>('/api/auth/demo-login', { method: 'POST', body: JSON.stringify({ userId }) }),
   list: () => request<RequestListItem[]>('/api/requests'),
+  pendingCount: () => request<PendingRequestCount>('/api/requests/pending-count'),
   get: (id: string) => request<RequestDetail>(`/api/requests/${id}`),
   create: (data: CreateRequest) =>
     request<RequestDetail>('/api/requests', { method: 'POST', body: JSON.stringify(data) }),

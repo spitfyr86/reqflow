@@ -10,6 +10,7 @@ public sealed class RequestStatusHistoryConfiguration : IEntityTypeConfiguration
     {
         builder.ToTable("RequestStatusHistory");
         builder.HasKey(history => history.Id);
+        builder.Property(history => history.Id).ValueGeneratedNever();
         builder.Property(history => history.FromStatus).HasConversion<string>().HasMaxLength(30);
         builder.Property(history => history.ToStatus).HasConversion<string>().HasMaxLength(30).IsRequired();
         builder.Property(history => history.ChangedBy).HasMaxLength(100).IsRequired();

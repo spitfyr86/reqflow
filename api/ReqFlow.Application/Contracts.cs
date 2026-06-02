@@ -22,6 +22,7 @@ public interface IRequestService
 {
     Task<RequestDetailDto> CreateAsync(CreateRequestDto dto, AuthenticatedUser actor, CancellationToken cancellationToken);
     Task<IReadOnlyList<RequestListItemDto>> ListAsync(AuthenticatedUser actor, CancellationToken cancellationToken);
+    Task<PendingRequestCountDto> GetPendingCountAsync(AuthenticatedUser actor, CancellationToken cancellationToken);
     Task<RequestDetailDto> GetAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken);
     Task<RequestDetailDto> ApproveAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken);
     Task<RequestDetailDto> RejectAsync(Guid id, RejectRequestDto dto, AuthenticatedUser actor, CancellationToken cancellationToken);

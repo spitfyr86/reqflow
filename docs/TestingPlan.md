@@ -11,6 +11,7 @@ The initial xUnit suite verifies:
 - Rejected request cannot be approved.
 - Approved request cannot be rejected.
 - A requester cannot approve their own request.
+- EF treats domain-generated status-history IDs as client-assigned values so new audit rows are inserted during transitions.
 
 ## API Integration Tests
 
@@ -19,6 +20,8 @@ The API integration suite verifies the HTTP security and workflow boundary with 
 - Anonymous requests return `401`.
 - Inactive users cannot log in.
 - Authenticated request creation derives the requester from the token.
+- Requesters only see their own requests and receive `403` for another requester's detail.
+- Approvers see the complete queue and its pending count.
 - Requesters cannot approve requests.
 - Approver actions record the authenticated identity in history.
 - Approvers can reject requests with a reason.
@@ -27,7 +30,11 @@ The API integration suite verifies the HTTP security and workflow boundary with 
 - An unknown request returns `404`.
 - A second transition returns `409`.
 
-Next, add SQL Server-backed integration coverage for EF mappings and competing row-version updates.
+## SQL Server-Backed Smoke Coverage
+
+The LocalDB bootstrap and live smoke commands validate the real SQL scripts and EF-backed API path during submission verification. A permanent SQL Server-backed test fixture is intentionally deferred: reliable per-run database isolation and cleanup would add more setup than this interview exercise warrants. In a production repository, add an isolated ephemeral SQL Server database in CI to cover EF mappings and competing row-version updates.
+
+The verified LocalDB approval smoke check confirms a pending request transitions to approved and its persisted history count increases from one row to two.
 
 ## Frontend Tests
 
@@ -46,6 +53,7 @@ Add Vitest and React Testing Library coverage for form validation, loading/error
 9. Confirm an approver cannot review a request they created.
 10. Confirm blank rejection reason is blocked.
 11. Use Swagger to attempt a second transition and confirm `409`.
+12. Confirm `GET /health` returns `200`.
 
 See [LocalDevelopment.md](LocalDevelopment.md) for a step-by-step UI walkthrough.
 

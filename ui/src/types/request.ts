@@ -46,3 +46,7 @@ export interface LoginResponse {
   accessToken: string
   user: CurrentUser
 }
+
+export interface PendingRequestCount {
+  count: number
+}

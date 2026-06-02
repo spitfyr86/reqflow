@@ -10,16 +10,24 @@ The initial xUnit suite verifies:
 - Rejection without a reason fails.
 - Rejected request cannot be approved.
 - Approved request cannot be rejected.
+- A requester cannot approve their own request.
 
 ## API Integration Tests
 
-Next, add tests against a disposable SQL Server instance for:
+The API integration suite verifies the HTTP security and workflow boundary with an in-memory repository:
 
-- Create, list, and get happy paths
-- Validation ProblemDetails contract
-- Unknown ID returns `404`
-- Second transition returns `409`
-- Competing row-version updates return `409`
+- Anonymous requests return `401`.
+- Inactive users cannot log in.
+- Authenticated request creation derives the requester from the token.
+- Requesters cannot approve requests.
+- Approver actions record the authenticated identity in history.
+- Approvers can reject requests with a reason.
+- Self-approval returns `403`.
+- Blank rejection reason returns `400`.
+- An unknown request returns `404`.
+- A second transition returns `409`.
+
+Next, add SQL Server-backed integration coverage for EF mappings and competing row-version updates.
 
 ## Frontend Tests
 
@@ -30,8 +38,8 @@ Add Vitest and React Testing Library coverage for form validation, loading/error
 1. Apply both SQL scripts.
 2. Start API and UI.
 3. Confirm list displays seeded rows.
-4. Create a request and confirm pending history.
-5. Approve the request and confirm buttons disappear.
+4. Sign in as a requester, create a request, and confirm pending history.
+5. Sign in as an approver, approve the request, and confirm buttons disappear.
 6. Reject another pending request and confirm blank reason is blocked.
 7. Use Swagger to attempt a second transition and confirm `409`.
 

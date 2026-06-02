@@ -1,4 +1,4 @@
-import { Alert, Button, Divider, Group, List, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
+import { Alert, Button, Divider, Group, List, Paper, Stack, Text, Title } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { requestApprovalApi } from '../api/requestApprovalApi'
@@ -7,11 +7,12 @@ import { LoadingView } from '../components/LoadingView'
 import { RejectRequestModal } from '../components/RejectRequestModal'
 import { RequestStatusBadge } from '../components/RequestStatusBadge'
 import type { RequestDetail } from '../types/request'
+import { useAuth } from '../auth/AuthContext'
 
 export function RequestDetailsPage() {
   const { id = '' } = useParams()
+  const { user } = useAuth()
   const [request, setRequest] = useState<RequestDetail>()
-  const [changedBy, setChangedBy] = useState('')
   const [error, setError] = useState<string>()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -28,7 +29,7 @@ export function RequestDetailsPage() {
     setSaving(true)
     setError(undefined)
     try {
-      setRequest(await requestApprovalApi.approve(id, changedBy))
+      setRequest(await requestApprovalApi.approve(id))
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to approve request.')
     } finally {
@@ -36,11 +37,11 @@ export function RequestDetailsPage() {
     }
   }
 
-  async function reject(actor: string, reason: string) {
+  async function reject(reason: string) {
     setSaving(true)
     setError(undefined)
     try {
-      setRequest(await requestApprovalApi.reject(id, actor, reason))
+      setRequest(await requestApprovalApi.reject(id, reason))
       setRejectOpened(false)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to reject request.')
@@ -70,13 +71,12 @@ export function RequestDetailsPage() {
           {request.rejectionReason && <Text c="red"><strong>Rejection reason:</strong> {request.rejectionReason}</Text>}
         </Stack>
       </Paper>
-      {request.status === 'Pending' && (
+      {request.status === 'Pending' && user && ['Approver', 'Admin'].includes(user.role) && user.id !== request.requestedByUserId && (
         <Paper withBorder p="lg">
           <Stack>
             <Title order={4}>Review action</Title>
-            <TextInput label="Changed by" required value={changedBy} onChange={(event) => setChangedBy(event.currentTarget.value)} />
             <Group>
-              <Button color="green" loading={saving} disabled={!changedBy.trim()} onClick={approve}>Approve</Button>
+              <Button color="green" loading={saving} onClick={approve}>Approve</Button>
               <Button color="red" variant="outline" onClick={() => setRejectOpened(true)}>Reject</Button>
             </Group>
           </Stack>

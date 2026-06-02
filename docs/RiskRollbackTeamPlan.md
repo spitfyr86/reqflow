@@ -5,7 +5,7 @@
 | Risk | Mitigation |
 | --- | --- |
 | Competing approvals | SQL `ROWVERSION`, EF concurrency handling, API `409` |
-| Authorization gap | Treat simulated identity as temporary; add OIDC and role checks before production |
+| Demo authentication used outside local environments | Replace demo JWT issuance with Entra ID or another OIDC provider before production |
 | Schema drift | Review versioned SQL scripts and add migration discipline |
 | Missed regression | Unit tests, integration tests, UI smoke checks, staged deployment |
 | Secret exposure | Store secrets in App Service Configuration or Key Vault |

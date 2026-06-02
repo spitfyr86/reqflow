@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IRequestRepository, RequestRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }

@@ -1,8 +1,11 @@
 namespace ReqFlow.Application;
 
-public sealed record CreateRequestDto(string Title, string Description, string RequestedBy);
-public sealed record ApproveRequestDto(string ChangedBy);
-public sealed record RejectRequestDto(string ChangedBy, string Reason);
+public sealed record CreateRequestDto(string Title, string Description);
+public sealed record ApproveRequestDto();
+public sealed record RejectRequestDto(string Reason);
+public sealed record CurrentUserDto(Guid Id, string Email, string DisplayName, string Role);
+public sealed record DemoLoginDto(Guid UserId);
+public sealed record LoginResponseDto(string AccessToken, CurrentUserDto User);
 
 public sealed record RequestListItemDto(Guid Id, string Title, string RequestedBy, string Status, DateTime CreatedAt);
 
@@ -19,10 +22,12 @@ public sealed record RequestDetailDto(
     string Title,
     string Description,
     string RequestedBy,
+    Guid RequestedByUserId,
     string Status,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     string? ApprovedRejectedBy,
+    Guid? ApprovedRejectedByUserId,
     DateTime? ApprovedRejectedAt,
     string? RejectionReason,
     IReadOnlyList<RequestHistoryDto> History);

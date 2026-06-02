@@ -19,8 +19,10 @@ export interface RequestHistory {
 
 export interface RequestDetail extends RequestListItem {
   description: string
+  requestedByUserId: string
   updatedAt: string | null
   approvedRejectedBy: string | null
+  approvedRejectedByUserId: string | null
   approvedRejectedAt: string | null
   rejectionReason: string | null
   history: RequestHistory[]
@@ -29,5 +31,18 @@ export interface RequestDetail extends RequestListItem {
 export interface CreateRequest {
   title: string
   description: string
-  requestedBy: string
+}
+
+export type UserRole = 'Requester' | 'Approver' | 'Admin'
+
+export interface CurrentUser {
+  id: string
+  email: string
+  displayName: string
+  role: UserRole
+}
+
+export interface LoginResponse {
+  accessToken: string
+  user: CurrentUser
 }

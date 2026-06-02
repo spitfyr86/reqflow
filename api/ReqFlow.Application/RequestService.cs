@@ -2,18 +2,18 @@ using ReqFlow.Domain;
 
 namespace ReqFlow.Application;
 
-public sealed class RequestService(IRequestRepository repository) : IRequestService
+public sealed class RequestService(IRequestRepository repository, IUserRepository userRepository) : IRequestService
 {
-    public async Task<RequestDetailDto> CreateAsync(CreateRequestDto dto, CancellationToken cancellationToken)
+    public async Task<RequestDetailDto> CreateAsync(CreateRequestDto dto, AuthenticatedUser actor, CancellationToken cancellationToken)
     {
+        var user = await GetActiveUserAsync(actor, cancellationToken);
         ValidateLength(dto.Title, nameof(dto.Title), 150);
         ValidateLength(dto.Description, nameof(dto.Description), 1000);
-        ValidateLength(dto.RequestedBy, nameof(dto.RequestedBy), 100);
 
         Request request;
         try
         {
-            request = new Request(dto.Title, dto.Description, dto.RequestedBy);
+            request = new Request(dto.Title, dto.Description, user.Id, user.Email);
         }
         catch (ArgumentException exception)
         {
@@ -25,20 +25,26 @@ public sealed class RequestService(IRequestRepository repository) : IRequestServ
         return MapDetail(request);
     }
 
-    public async Task<IReadOnlyList<RequestListItemDto>> ListAsync(CancellationToken cancellationToken) =>
-        (await repository.ListAsync(cancellationToken)).Select(MapListItem).ToList();
-
-    public async Task<RequestDetailDto> GetAsync(Guid id, CancellationToken cancellationToken) =>
-        MapDetail(await GetEntityAsync(id, cancellationToken));
-
-    public async Task<RequestDetailDto> ApproveAsync(Guid id, ApproveRequestDto dto, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<RequestListItemDto>> ListAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
     {
-        ValidateLength(dto.ChangedBy, nameof(dto.ChangedBy), 100);
+        await GetActiveUserAsync(actor, cancellationToken);
+        return (await repository.ListAsync(cancellationToken)).Select(MapListItem).ToList();
+    }
+
+    public async Task<RequestDetailDto> GetAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken)
+    {
+        await GetActiveUserAsync(actor, cancellationToken);
+        return MapDetail(await GetEntityAsync(id, cancellationToken));
+    }
+
+    public async Task<RequestDetailDto> ApproveAsync(Guid id, AuthenticatedUser actor, CancellationToken cancellationToken)
+    {
+        var user = await GetReviewerAsync(actor, cancellationToken);
         var request = await GetEntityAsync(id, cancellationToken);
 
         try
         {
-            request.Approve(dto.ChangedBy);
+            request.Approve(user.Id, user.Email);
         }
         catch (ArgumentException exception)
         {
@@ -47,21 +53,25 @@ public sealed class RequestService(IRequestRepository repository) : IRequestServ
         catch (InvalidOperationException exception)
         {
             throw new ConflictException(exception.Message);
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            throw new ForbiddenException(exception.Message);
         }
 
         await repository.SaveChangesAsync(cancellationToken);
         return MapDetail(request);
     }
 
-    public async Task<RequestDetailDto> RejectAsync(Guid id, RejectRequestDto dto, CancellationToken cancellationToken)
+    public async Task<RequestDetailDto> RejectAsync(Guid id, RejectRequestDto dto, AuthenticatedUser actor, CancellationToken cancellationToken)
     {
-        ValidateLength(dto.ChangedBy, nameof(dto.ChangedBy), 100);
+        var user = await GetReviewerAsync(actor, cancellationToken);
         ValidateLength(dto.Reason, nameof(dto.Reason), 500);
         var request = await GetEntityAsync(id, cancellationToken);
 
         try
         {
-            request.Reject(dto.ChangedBy, dto.Reason);
+            request.Reject(user.Id, user.Email, dto.Reason);
         }
         catch (ArgumentException exception)
         {
@@ -70,6 +80,10 @@ public sealed class RequestService(IRequestRepository repository) : IRequestServ
         catch (InvalidOperationException exception)
         {
             throw new ConflictException(exception.Message);
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            throw new ForbiddenException(exception.Message);
         }
 
         await repository.SaveChangesAsync(cancellationToken);
@@ -79,6 +93,28 @@ public sealed class RequestService(IRequestRepository repository) : IRequestServ
     private async Task<Request> GetEntityAsync(Guid id, CancellationToken cancellationToken) =>
         await repository.GetAsync(id, cancellationToken)
         ?? throw new NotFoundException($"Request '{id}' was not found.");
+
+    private async Task<User> GetActiveUserAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.GetAsync(actor.Id, cancellationToken);
+        if (user is null || !user.IsActive)
+        {
+            throw new ForbiddenException("The authenticated user is not active.");
+        }
+
+        return user;
+    }
+
+    private async Task<User> GetReviewerAsync(AuthenticatedUser actor, CancellationToken cancellationToken)
+    {
+        var user = await GetActiveUserAsync(actor, cancellationToken);
+        if (user.Role is not (UserRole.Approver or UserRole.Admin))
+        {
+            throw new ForbiddenException("Only approvers or administrators can review requests.");
+        }
+
+        return user;
+    }
 
     private static void ValidateLength(string? value, string field, int maxLength)
     {
@@ -102,10 +138,12 @@ public sealed class RequestService(IRequestRepository repository) : IRequestServ
             request.Title,
             request.Description,
             request.RequestedBy,
+            request.RequestedByUserId,
             request.Status.ToString(),
             request.CreatedAt,
             request.UpdatedAt,
             request.ApprovedRejectedBy,
+            request.ApprovedRejectedByUserId,
             request.ApprovedRejectedAt,
             request.RejectionReason,
             request.StatusHistory

@@ -6,6 +6,8 @@ Base URL: `http://localhost:5000`
 
 | Method | Path | Success | Purpose |
 | --- | --- | --- | --- |
+| `GET` | `/api/auth/demo-users` | `200` | List active local demo identities |
+| `POST` | `/api/auth/demo-login` | `200` | Issue a local demo JWT |
 | `POST` | `/api/requests` | `201` | Create a request |
 | `GET` | `/api/requests` | `200` | List requests |
 | `GET` | `/api/requests/{id}` | `200` | Get request details and history |
@@ -14,25 +16,23 @@ Base URL: `http://localhost:5000`
 
 ## Create
 
+Protected endpoints require `Authorization: Bearer {accessToken}`. The API derives requester and reviewer identities from the JWT.
+
 ```json
 {
   "title": "New laptop",
-  "description": "Replacement laptop for a developer.",
-  "requestedBy": "alex@example.com"
+  "description": "Replacement laptop for a developer."
 }
 ```
 
 ## Approve
 
-```json
-{ "changedBy": "lead@example.com" }
-```
+Approval has no request body.
 
 ## Reject
 
 ```json
 {
-  "changedBy": "lead@example.com",
   "reason": "Budget is not available."
 }
 ```
@@ -71,6 +71,8 @@ Known errors use `application/problem+json`.
 | Status | When |
 | --- | --- |
 | `400` | Missing or invalid field |
+| `401` | Missing or invalid bearer token |
+| `403` | Inactive user, insufficient role, or self-review attempt |
 | `404` | Request ID does not exist |
 | `409` | Invalid transition or concurrent update |
 | `500` | Unexpected server error |

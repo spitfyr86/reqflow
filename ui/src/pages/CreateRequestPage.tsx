@@ -7,7 +7,6 @@ export function CreateRequestPage() {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [requestedBy, setRequestedBy] = useState('')
   const [error, setError] = useState<string>()
   const [loading, setLoading] = useState(false)
 
@@ -16,7 +15,7 @@ export function CreateRequestPage() {
     setLoading(true)
     setError(undefined)
     try {
-      const created = await requestApprovalApi.create({ title, description, requestedBy })
+      const created = await requestApprovalApi.create({ title, description })
       navigate(`/requests/${created.id}`)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to create request.')
@@ -33,7 +32,6 @@ export function CreateRequestPage() {
         <Stack>
           <TextInput label="Title" required maxLength={150} value={title} onChange={(event) => setTitle(event.currentTarget.value)} />
           <Textarea label="Description" required maxLength={1000} minRows={4} value={description} onChange={(event) => setDescription(event.currentTarget.value)} />
-          <TextInput label="Requested by" required maxLength={100} value={requestedBy} onChange={(event) => setRequestedBy(event.currentTarget.value)} />
           <Group justify="flex-end">
             <Button variant="default" component={Link} to="/">Cancel</Button>
             <Button type="submit" loading={loading}>Create request</Button>

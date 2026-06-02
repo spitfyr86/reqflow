@@ -16,7 +16,7 @@ Questions to confirm with a product owner:
 
 ## Assumptions
 
-- Authentication is simulated with user-identifying strings for the assessment.
+- Authentication uses demo JWTs for seeded users. Production uses an OAuth2/OIDC identity provider.
 - A request has exactly one approval decision.
 - Stored timestamps are UTC and displayed using the browser locale.
 - The API remains the source of truth when multiple users act concurrently.
@@ -27,6 +27,8 @@ Questions to confirm with a product owner:
 - List requests and show request details with status history.
 - Approve or reject only pending requests.
 - Require actor on transitions and reason on rejection.
+- Allow only active approvers or administrators to review requests.
+- Prevent requesters from reviewing their own requests.
 - Return clear validation, not-found, and conflict errors.
 
 ## Non-Functional Requirements

@@ -4,6 +4,9 @@ namespace ReqFlow.Tests;
 
 public sealed class RequestTests
 {
+    private static readonly Guid RequesterId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    private static readonly Guid ApproverId = Guid.Parse("10000000-0000-0000-0000-000000000003");
+
     [Fact]
     public void CreateRequest_StartsPendingAndRecordsHistory()
     {
@@ -20,7 +23,7 @@ public sealed class RequestTests
     {
         var request = NewRequest();
 
-        request.Approve("team.lead@example.com");
+        request.Approve(ApproverId, "team.lead@example.com");
 
         Assert.Equal(RequestStatus.Approved, request.Status);
         Assert.Equal("team.lead@example.com", request.ApprovedRejectedBy);
@@ -32,7 +35,7 @@ public sealed class RequestTests
     {
         var request = NewRequest();
 
-        request.Reject("team.lead@example.com", "Budget is not available.");
+        request.Reject(ApproverId, "team.lead@example.com", "Budget is not available.");
 
         Assert.Equal(RequestStatus.Rejected, request.Status);
         Assert.Equal("Budget is not available.", request.RejectionReason);
@@ -44,7 +47,7 @@ public sealed class RequestTests
     {
         var request = NewRequest();
 
-        Assert.Throws<ArgumentException>(() => request.Reject("team.lead@example.com", " "));
+        Assert.Throws<ArgumentException>(() => request.Reject(ApproverId, "team.lead@example.com", " "));
         Assert.Equal(RequestStatus.Pending, request.Status);
         Assert.Single(request.StatusHistory);
     }
@@ -53,20 +56,28 @@ public sealed class RequestTests
     public void ApproveRejectedRequest_Fails()
     {
         var request = NewRequest();
-        request.Reject("team.lead@example.com", "Not needed.");
+        request.Reject(ApproverId, "team.lead@example.com", "Not needed.");
 
-        Assert.Throws<InvalidOperationException>(() => request.Approve("team.lead@example.com"));
+        Assert.Throws<InvalidOperationException>(() => request.Approve(ApproverId, "team.lead@example.com"));
     }
 
     [Fact]
     public void RejectApprovedRequest_Fails()
     {
         var request = NewRequest();
-        request.Approve("team.lead@example.com");
+        request.Approve(ApproverId, "team.lead@example.com");
 
-        Assert.Throws<InvalidOperationException>(() => request.Reject("team.lead@example.com", "Changed my mind."));
+        Assert.Throws<InvalidOperationException>(() => request.Reject(ApproverId, "team.lead@example.com", "Changed my mind."));
+    }
+
+    [Fact]
+    public void ApproveOwnRequest_Fails()
+    {
+        var request = NewRequest();
+
+        Assert.Throws<UnauthorizedAccessException>(() => request.Approve(RequesterId, "requester@example.com"));
     }
 
     private static Request NewRequest() =>
-        new("New laptop", "Replacement laptop for a developer.", "requester@example.com");
+        new("New laptop", "Replacement laptop for a developer.", RequesterId, "requester@example.com");
 }

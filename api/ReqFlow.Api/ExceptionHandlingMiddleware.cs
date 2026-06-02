@@ -18,6 +18,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
                 ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
                 NotFoundException => (StatusCodes.Status404NotFound, "Request not found"),
                 ConflictException => (StatusCodes.Status409Conflict, "Request conflict"),
+                ForbiddenException => (StatusCodes.Status403Forbidden, "Action forbidden"),
                 _ => (StatusCodes.Status500InternalServerError, "Unexpected server error")
             };
 

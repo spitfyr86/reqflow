@@ -5,6 +5,7 @@ ReqFlow means **Requests + Workflow**. This case-study application demonstrates 
 ## What It Demonstrates
 
 - Domain rules enforced by the API, not only the UI
+- Demo JWT authentication with persisted users and role-based authorization
 - Clean Architecture-inspired separation without microservices
 - SQL Server persistence with optimistic concurrency
 - React + TypeScript + Mantine screens for a complete user flow
@@ -45,18 +46,18 @@ Swagger is available at `http://localhost:5000/swagger`.
 4. Start the UI:
 
 ```powershell
-cd ui/reqflow-ui
+cd ui
 npm install
 npm run dev
 ```
 
-The UI runs at `http://localhost:5173`. Copy `.env.example` to `.env` only when the API base URL needs to change.
+The UI runs at `http://localhost:5173`. Copy `.env.example` to `.env` only when the API base URL needs to change. Sign in as a seeded requester, approver, or administrator to exercise each workflow path.
 
 ## Tests
 
 ```powershell
 dotnet test ReqFlow.slnx
-cd ui/reqflow-ui
+cd ui
 npm run build
 ```
 
@@ -64,13 +65,15 @@ npm run build
 
 - A modular monolith is enough for this workflow and easier to operate than microservices.
 - Domain methods own state transitions and create history entries.
+- JWT claims identify the current user; request bodies cannot spoof requesters or reviewers.
+- Demo login keeps the assessment runnable. Production should replace it with Microsoft Entra ID or another OAuth2/OIDC provider.
 - `POST /approve` and `POST /reject` express business actions more clearly than a generic status patch.
 - EF Core keeps application code concise; SQL scripts make the database design visible to reviewers.
 - Mantine provides a consistent UI quickly. Local React state is enough at this scale.
 
 ## Known Limitations
 
-- Authentication is simulated through `requestedBy` and `changedBy` fields. Production should use OAuth2/OIDC, JWT validation, and role-based authorization.
+- Authentication uses a demo-only seeded-user login and local JWT signing key. Production should use OAuth2/OIDC, externalized secrets, and platform-managed token issuance.
 - SQL scripts are the initial database bootstrap path. A production team should add reviewed EF Core migrations for incremental schema rollout.
 - Frontend automated tests and API integration tests are documented next steps.
 - Pagination, filtering, and richer observability are intentionally deferred.
@@ -81,6 +84,6 @@ AI-assisted implementation was used to scaffold code, documentation, and verific
 
 ## Next Improvements
 
-Add integration tests with a disposable SQL Server database, frontend component tests, authenticated identities, pagination, Application Insights telemetry, and CI/CD pipelines with environment approvals.
+Add SQL Server-backed integration tests, frontend component tests, Microsoft Entra ID integration, pagination, Application Insights telemetry, and CI/CD pipelines with environment approvals.
 
 See [docs/RequestApproval_TechnicalDesign.md](docs/RequestApproval_TechnicalDesign.md) for the architecture and trade-offs.

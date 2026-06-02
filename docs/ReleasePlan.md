@@ -22,9 +22,9 @@
 
 ## Configuration
 
-- API: `ConnectionStrings__ReqFlow`, allowed UI origin, logging settings
+- API: `ConnectionStrings__ReqFlow`, JWT authority/audience settings, allowed UI origin, logging settings
 - UI build: `VITE_API_BASE_URL`
-- Secrets belong in platform configuration or Key Vault, never source control.
+- Demo JWT signing material is local-only. Production secrets belong in platform configuration or Key Vault, never source control.
 
 ## Smoke Checks
 

@@ -19,6 +19,14 @@ public sealed class RequestConfiguration : IEntityTypeConfiguration<Request>
         builder.Property(request => request.RowVersion).IsRowVersion();
         builder.HasIndex(request => request.Status);
         builder.HasIndex(request => request.CreatedAt);
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(request => request.RequestedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(request => request.ApprovedRejectedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(request => request.StatusHistory)
             .WithOne()

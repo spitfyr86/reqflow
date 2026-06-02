@@ -15,5 +15,9 @@ public sealed class RequestStatusHistoryConfiguration : IEntityTypeConfiguration
         builder.Property(history => history.ChangedBy).HasMaxLength(100).IsRequired();
         builder.Property(history => history.Comment).HasMaxLength(500);
         builder.HasIndex(history => history.RequestId);
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(history => history.ChangedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

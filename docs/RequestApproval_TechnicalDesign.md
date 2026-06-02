@@ -26,6 +26,8 @@ The API is a modular monolith with pragmatic Clean Architecture-inspired project
 
 `Requests` stores current state and a `ROWVERSION` concurrency token. `RequestStatusHistory` stores append-only transition records. Indexes support status filtering, newest-first request browsing, and history lookup. SQL scripts under `/sql` make the schema reviewable.
 
+`Users` stores seeded demo identities, roles, and active status. Requests and history rows retain user foreign keys plus email snapshots so audit output remains readable if a profile later changes.
+
 ## Frontend Design
 
 The UI has list, create, and detail pages. A centralized API client handles JSON and ProblemDetails responses. Local component state is sufficient because this is a small server-state-driven feature. React Query is a reasonable next step when caching and invalidation become important.
@@ -44,7 +46,9 @@ The `Request` entity owns transitions so invalid changes cannot bypass rules thr
 
 ## Authentication And Authorization
 
-The assessment uses simulated identity strings. Production should validate OAuth2/OIDC JWTs, derive actor identity from claims rather than request bodies, and enforce creator/reviewer roles.
+The local assessment issues JWTs through a demo-login endpoint for seeded users. Request creation and review derive identity from JWT claims, never from request payloads. The application service re-checks active status and reviewer roles against persisted users. Only approvers and administrators can review requests, and self-review is forbidden.
+
+The demo issuer is intentionally replaceable. Production should use Microsoft Entra ID or another OAuth2/OIDC provider, platform-managed signing keys, short-lived access tokens, and environment-specific configuration.
 
 ## Trade-Offs
 

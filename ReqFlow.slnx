@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/api/">
+    <Project Path="api/ReqFlow.Api/ReqFlow.Api.csproj" />
+    <Project Path="api/ReqFlow.Application/ReqFlow.Application.csproj" />
+    <Project Path="api/ReqFlow.Domain/ReqFlow.Domain.csproj" />
+    <Project Path="api/ReqFlow.Infrastructure/ReqFlow.Infrastructure.csproj" />
+    <Project Path="api/ReqFlow.Tests/ReqFlow.Tests.csproj" />
+  </Folder>
+</Solution>

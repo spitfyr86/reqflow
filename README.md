@@ -122,12 +122,5 @@ npm run build
 - Frontend automated tests and SQL Server-isolated integration tests are documented next steps.
 - Pagination and richer observability are intentionally deferred.
 
-## AI Tool Use
-
-AI-assisted implementation was used to scaffold code, documentation, and verification steps. The artifacts should still be reviewed like any other contribution: run builds, inspect SQL, exercise smoke tests, and validate design assumptions with the team.
-
-## Next Improvements
-
-Add isolated SQL Server-backed integration tests, frontend component tests, Microsoft Entra ID integration, pagination, Application Insights telemetry, and CI/CD pipelines with environment approvals. Refresh tokens, notifications, and multi-step approvals are production-scope options to evaluate only when requirements justify them.
 
 See [docs/RequestApproval_TechnicalDesign.md](docs/RequestApproval_TechnicalDesign.md) for the architecture and trade-offs.

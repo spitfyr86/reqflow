@@ -1,12 +1,12 @@
 @ReqFlow_Api_HostAddress = http://localhost:5000
 @RequesterUserId = 10000000-0000-0000-0000-000000000001
-@AccessToken = paste-token-from-demo-login
+@AccessToken = paste-token-from-login
 
 GET {{ReqFlow_Api_HostAddress}}/health
 
 ###
 
-POST {{ReqFlow_Api_HostAddress}}/api/auth/demo-login
+POST {{ReqFlow_Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {

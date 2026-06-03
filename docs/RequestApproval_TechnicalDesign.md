@@ -46,7 +46,7 @@ The `Request` entity owns transitions so invalid changes cannot bypass rules thr
 
 ## Authentication And Authorization
 
-The local assessment issues JWTs through a demo-login endpoint for seeded users. Request creation and review derive identity from JWT claims, never from request payloads. The application service re-checks active status and reviewer roles against persisted users. Only approvers and administrators can review requests, and self-review is forbidden.
+The local assessment issues JWTs through a login endpoint for seeded users. Request creation and review derive identity from JWT claims, never from request payloads. The application service re-checks active status and reviewer roles against persisted users. Only approvers and administrators can review requests, and self-review is forbidden.
 
 The application service also scopes requester reads to requests they created. Approvers and administrators retain full queue visibility. Keeping this rule in the API prevents a client from bypassing the UI filter.
 

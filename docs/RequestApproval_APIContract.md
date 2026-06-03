@@ -6,8 +6,8 @@ Base URL: `http://localhost:5000`
 
 | Method | Path | Success | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/api/auth/demo-users` | `200` | List active local demo identities |
-| `POST` | `/api/auth/demo-login` | `200` | Issue a local demo JWT |
+| `GET` | `/api/auth/users` | `200` | List active local seeded identities |
+| `POST` | `/api/auth/login` | `200` | Issue a local JWT for a selected seeded identity |
 | `GET` | `/health` | `200` | Lightweight API health check |
 | `POST` | `/api/requests` | `201` | Create a request |
 | `GET` | `/api/requests` | `200` | List requests |
@@ -18,7 +18,7 @@ Base URL: `http://localhost:5000`
 
 ## Complete API Workflow
 
-Use `POST /api/auth/demo-login` to obtain a bearer token. The requester and reviewer identities are derived from the token, not request bodies.
+Use `POST /api/auth/login` to obtain a bearer token. The requester and reviewer identities are derived from the token, not request bodies.
 
 ### 1. Login As A Requester
 

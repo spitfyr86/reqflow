@@ -32,9 +32,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const requestApprovalApi = {
-  demoUsers: () => request<CurrentUser[]>('/api/auth/demo-users'),
+  users: () => request<CurrentUser[]>('/api/auth/users'),
   login: (userId: string) =>
-    request<LoginResponse>('/api/auth/demo-login', { method: 'POST', body: JSON.stringify({ userId }) }),
+    request<LoginResponse>('/api/auth/login', { method: 'POST', body: JSON.stringify({ userId }) }),
   list: () => request<RequestListItem[]>('/api/requests'),
   pendingCount: () => request<PendingRequestCount>('/api/requests/pending-count'),
   get: (id: string) => request<RequestDetail>(`/api/requests/${id}`),

@@ -13,7 +13,7 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    requestApprovalApi.demoUsers()
+    requestApprovalApi.users()
       .then(setUsers)
       .catch((cause: Error) => setError(cause.message))
   }, [])

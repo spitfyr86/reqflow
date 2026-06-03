@@ -45,7 +45,7 @@ public sealed class WorkflowApiTests
         using var factory = new ReqFlowApiFactory();
         using var client = factory.CreateClient();
 
-        var response = await client.PostAsJsonAsync("/api/auth/demo-login", new DemoLoginDto(InactiveUserId));
+        var response = await client.PostAsJsonAsync("/api/auth/login", new LoginDto(InactiveUserId));
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -178,7 +178,7 @@ public sealed class WorkflowApiTests
     private static async Task<HttpClient> CreateAuthenticatedClientAsync(ReqFlowApiFactory factory, Guid userId)
     {
         var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/auth/demo-login", new DemoLoginDto(userId));
+        var response = await client.PostAsJsonAsync("/api/auth/login", new LoginDto(userId));
         var login = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login!.AccessToken);
         return client;

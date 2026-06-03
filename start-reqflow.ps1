@@ -1,10 +1,13 @@
 [CmdletBinding()]
 param(
-    [switch]$ResetDatabase
+    [switch]$ResetDatabase,
+    [switch]$SkipBuild,
+    [switch]$ProductionBuild
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$solutionPath = Join-Path $repoRoot 'ReqFlow.slnx'
 $apiProject = Join-Path $repoRoot 'api\ReqFlow.Api'
 $uiDirectory = Join-Path $repoRoot 'ui'
 
@@ -25,6 +28,14 @@ function Quote-PowerShellLiteral {
 Require-Command 'dotnet'
 Require-Command 'npm'
 
+if (-not $SkipBuild) {
+    Write-Host 'Restoring .NET packages...' -ForegroundColor Cyan
+    & dotnet restore $solutionPath
+
+    Write-Host 'Building .NET solution...' -ForegroundColor Cyan
+    & dotnet build $solutionPath -m:1 -v:m
+}
+
 if ($ResetDatabase) {
     Require-Command 'sqlcmd'
 
@@ -35,7 +46,12 @@ if ($ResetDatabase) {
 
 if (-not (Test-Path (Join-Path $uiDirectory 'node_modules'))) {
     Write-Host 'Installing UI packages...' -ForegroundColor Cyan
-    & npm install --prefix $uiDirectory
+    & npm --prefix $uiDirectory install
+}
+
+if ($ProductionBuild) {
+    Write-Host 'Building React UI production bundle...' -ForegroundColor Cyan
+    & npm --prefix $uiDirectory run build
 }
 
 $apiPath = Quote-PowerShellLiteral $apiProject

@@ -21,18 +21,34 @@ SqlLocalDB info
 
 ## Quick Start Script
 
-From the repository root:
+From a fresh GitHub clone:
+
+```powershell
+git clone https://github.com/spitfyr86/reqflow.git
+cd reqflow
+.\start-reqflow.ps1 -ResetDatabase
+```
+
+For later runs from the repository root:
 
 ```powershell
 .\start-reqflow.ps1
 ```
 
-The script validates `dotnet` and `npm`, installs UI packages when `ui\node_modules` is missing, and opens two visible PowerShell windows:
+The script validates `dotnet` and `npm`, restores and builds the .NET solution, installs UI packages when `ui\node_modules` is missing, and opens two visible PowerShell windows:
 
 - **ReqFlow API**: runs the API at `http://localhost:5000`
 - **ReqFlow UI**: runs the UI at `http://localhost:5173`
 
 To stop the app, press `Ctrl+C` in both windows.
+
+Optional switches:
+
+| Switch | Use |
+| --- | --- |
+| `-ResetDatabase` | Recreates and seeds the LocalDB database before the app starts. |
+| `-ProductionBuild` | Runs the React production build before starting the Vite dev server. |
+| `-SkipBuild` | Skips `dotnet restore` and `dotnet build` for faster repeat starts. |
 
 Reset and seed LocalDB before starting when you want a clean demo:
 

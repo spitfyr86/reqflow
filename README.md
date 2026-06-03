@@ -31,18 +31,38 @@ ui/         Vite React application
 
 Prerequisites: .NET 8 SDK or newer, Node.js, npm, SQL Server LocalDB, and `sqlcmd`.
 
-For the quickest startup, open PowerShell in the repository root and run:
+From a fresh GitHub clone:
+
+```powershell
+git clone https://github.com/spitfyr86/reqflow.git
+cd reqflow
+.\start-reqflow.ps1 -ResetDatabase
+```
+
+For later runs, open PowerShell in the repository root and run:
 
 ```powershell
 .\start-reqflow.ps1
 ```
 
-The script opens separate visible PowerShell windows for the API and UI. To stop the app, press `Ctrl+C` in both windows.
+The script restores and builds the .NET solution, installs UI packages when `ui\node_modules` is missing, and opens separate visible PowerShell windows for the API and UI. To stop the app, press `Ctrl+C` in both windows.
 
 To reset and reseed LocalDB before starting:
 
 ```powershell
 .\start-reqflow.ps1 -ResetDatabase
+```
+
+To verify the React production bundle before starting the dev server:
+
+```powershell
+.\start-reqflow.ps1 -ProductionBuild
+```
+
+To skip the restore/build step on a repeat local run:
+
+```powershell
+.\start-reqflow.ps1 -SkipBuild
 ```
 
 The equivalent manual commands are below.
